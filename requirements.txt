@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+neomodel
+python-dotenv
+pytest
+httpx
