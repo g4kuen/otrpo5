@@ -1,4 +1,4 @@
-#TEST.py
+#TEST_connect.py
 from neo4j import GraphDatabase
 
 uri = "neo4j+ssc://6f37bfb2.databases.neo4j.io"

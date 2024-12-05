@@ -1,3 +1,5 @@
+#models.py
+
 from neomodel import StructuredNode, StringProperty, RelationshipTo
 from neomodel import config
 
