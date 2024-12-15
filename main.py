@@ -24,27 +24,23 @@ def run_query(query, parameters=None):
 
 @app.get("/nodes")
 async def get_nodes():
-    query = "MATCH (n:User) RETURN n.uid AS uid, n.label AS label"
+    query = "MATCH (n:User) RETURN n.id AS id, n.name AS name"
     users = run_query(query)
     return users
 
-@app.get("/node/{node_id}")
-async def get_node_and_relationships(node_id: str):
-    query = """
-    MATCH (u:User {uid: $node_id})
-    OPTIONAL MATCH (u)-[:FOLLOW]->(f:User)
-    OPTIONAL MATCH (u)-[:SUBSCRIBE]->(s:User)
-    RETURN u.uid AS uid, 
-           collect(f.uid) AS follows, 
-           collect(s.uid) AS subscribes
-    """
-    user_data = run_query(query, {"node_id": node_id})
+@app.get("/node/{id}")
+async def get_node_and_relationships(id: int):
+    query = "MATCH (u:User {id: toInteger($id)}) OPTIONAL MATCH (u)-[:FOLLOW]->(f:User) OPTIONAL MATCH (u)-[:SUBSCRIBE]->(s:User) RETURN u.id AS id,  collect(f.id) AS follows,  collect(s.id) AS subscribes "
+
+
+    print(query)
+    user_data = run_query(query, {"id": id})
     if not user_data:
         raise HTTPException(status_code=404, detail="Node not found")
 
     user = user_data[0]
     return {
-        "uid": user["uid"],
+        "id": user["id"],
         "follows": user["follows"],
         "subscribes": user["subscribes"]
     }
@@ -54,7 +50,7 @@ async def create_node_and_relationships(node_data: dict = None):
         raise HTTPException(status_code=400, detail="No node data provided")
 
     query = """
-    CREATE (u:User {uid: $uid, label: $label, name: $name, 
+    CREATE (u:User {id: $id, name: $name, 
                      about: $about, home_town: $home_town, photo_max: $photo_max, 
                      screen_name: $screen_name, sex: $sex, style: $style, visualisation: $visualisation})
     RETURN u
@@ -63,20 +59,20 @@ async def create_node_and_relationships(node_data: dict = None):
 
     if "follows" in node_data:
         for follow_id in node_data["follows"]:
-            query = "MATCH (u:User {uid: $uid}), (f:User {uid: $follow_id}) CREATE (u)-[:FOLLOWS]->(f)"
-            run_query(query, {"uid": node_data["uid"], "follow_id": follow_id})
+            query = "MATCH (u:User {id: $id}), (f:User {id: $follow_id}) CREATE (u)-[:FOLLOWS]->(f)"
+            run_query(query, {"id": node_data["id"], "follow_id": follow_id})
 
     if "subscribes" in node_data:
         for subscribe_id in node_data["subscribes"]:
-            query = "MATCH (u:User {uid: $uid}), (s:User {uid: $subscribe_id}) CREATE (u)-[:SUBSCRIBES]->(s)"
-            run_query(query, {"uid": node_data["uid"], "subscribe_id": subscribe_id})
+            query = "MATCH (u:User {id: $id}), (s:User {id: $subscribe_id}) CREATE (u)-[:SUBSCRIBES]->(s)"
+            run_query(query, {"id": node_data["id"], "subscribe_id": subscribe_id})
 
-    return {"message": "Node and relationships created successfully", "node_id": node_data["uid"]}
+    return {"message": "Node and relationships created successfully", "node_id": node_data["id"]}
 
 @app.delete("/node/{node_id}")
 async def delete_node_and_relationships(node_id: str):
     query = """
-    MATCH (u:User {uid: $node_id})-[r]->()
+    MATCH (u:User {id: $node_id})-[r]->()
     DELETE r, u
     """
     run_query(query, {"node_id": node_id})

@@ -14,8 +14,7 @@ config.PASSWORD = os.getenv("NEO4J_PASSWORD")
 
 
 class User(StructuredNode):
-    uid = StringProperty(unique_index=True)
-    label = StringProperty()
+    id = StringProperty(unique_index=True)
     name = StringProperty()
     about = StringProperty()
     home_town = StringProperty()

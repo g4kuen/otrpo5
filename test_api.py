@@ -14,8 +14,7 @@ def client():
 
 def test_create_node(client):
     node_data = {
-        "uid": "12345",
-        "label": "User",
+        "id": 12345,
         "name": "John Doe",
         "about": "Software Developer",
         "home_town": "New York",
@@ -34,13 +33,13 @@ def test_create_node(client):
     assert response.json()["message"] == "Node and relationships created successfully"
 
 def test_get_node_and_relationships(client):
-    node_id = "12345"
+    node_id = 12345
     response = client.get(f"/node/{node_id}")
 
     assert response.status_code == status.HTTP_200_OK
 
     data = response.json()
-    assert data["uid"] == node_id
+    assert data["id"] == node_id
 
     assert "follows" in data
     assert "subscribes" in data
@@ -49,7 +48,7 @@ def test_get_node_and_relationships(client):
     assert isinstance(data["subscribes"], list)
 
 def test_delete_node(client):
-    node_id = "12345"
+    node_id = 12345
 
     response = client.delete(f"/node/{node_id}")
 
@@ -62,4 +61,4 @@ def test_get_nodes(client):
     response = client.get("/nodes")
 
     assert response.status_code == status.HTTP_200_OK
-    assert isinstance(response.json(), list)  # Должен быть список узлов
+    assert isinstance(response.json(), list)
