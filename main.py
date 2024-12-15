@@ -50,7 +50,7 @@ async def create_node_and_relationships(node_data: dict = None):
         raise HTTPException(status_code=400, detail="No node data provided")
 
     query = """
-    CREATE (u:User {id: $id, name: $name, 
+    CREATE (u:User {id: toInteger($id), name: $name, 
                      about: $about, home_town: $home_town, photo_max: $photo_max, 
                      screen_name: $screen_name, sex: $sex, style: $style, visualisation: $visualisation})
     RETURN u
@@ -70,7 +70,7 @@ async def create_node_and_relationships(node_data: dict = None):
     return {"message": "Node and relationships created successfully", "node_id": node_data["id"]}
 
 @app.delete("/node/{node_id}")
-async def delete_node_and_relationships(node_id: str):
+async def delete_node_and_relationships(node_id: int):
     query = """
     MATCH (u:User {id: $node_id})-[r]->()
     DELETE r, u
